@@ -1,0 +1,9 @@
+#ifndef MODULE_H
+#define MODULE_H
+
+#define VERSION "${VERSION}"
+#define TIMESTAMP "${TIMESTAMP}"
+
+${INCLUDES}
+
+#endif
