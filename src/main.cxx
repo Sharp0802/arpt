@@ -2,7 +2,6 @@
 #include <iostream>
 #include <map>
 #include <sstream>
-#include <unistd.h>
 
 #include "module.h"
 
@@ -31,10 +30,10 @@ int ListDevs()
     auto list = arpt::QueryNetworkInterfaceList();
 
     std::stringstream ss;
-    ss << "\nNAME     LINK                           IP/MASK GATEWAY         BROADCAST";
+    ss << "\nNAME                                   LINK                           IP/MASK GATEWAY         BROADCAST";
     for (const auto& dev: list->Get())
     {
-        ss << std::format("\n{:8} {:17} {:>15}/{:<3}  {:15} {:15}",
+        ss << std::format("\n{:38} {:17} {:>15}/{:<3}  {:15} {:15}",
             dev->Name,
             dev->Link.ToString(),
             dev->Address.ToString(),
