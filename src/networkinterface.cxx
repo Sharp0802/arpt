@@ -4,7 +4,7 @@
 
 #include "log.h"
 
-#if __WIN32
+#if _WIN32
 #include "networkinterface.windows.h"
 #else
 #include "networkinterface.posix.h"
