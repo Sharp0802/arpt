@@ -1,6 +1,8 @@
 #ifndef NETWORKINTERFACEW_H
 #define NETWORKINTERFACEW_H
 
+#if __unix__
+
 #include <ifaddrs.h>
 #include <string>
 
@@ -52,5 +54,7 @@ namespace arpt
         std::string __GetName() const override;
     };
 }
+
+#endif
 
 #endif //NETWORKINTERFACEW_H

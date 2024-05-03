@@ -1,5 +1,7 @@
 #include "networkinterface.posix.h"
 
+#if __unix__
+
 #include <cstring>
 #include <map>
 #include <ranges>
@@ -321,3 +323,5 @@ namespace arpt
         return m_Name;
     }
 }
+
+#endif
