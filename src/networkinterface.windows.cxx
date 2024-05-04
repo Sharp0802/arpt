@@ -12,6 +12,36 @@
 
 namespace arpt
 {
+	std::string UTF16ToUTF8(const std::wstring& ws)
+	{
+		if (ws.empty())
+			return "";
+
+		const auto u8len = WideCharToMultiByte(
+			CP_UTF8,
+			0,
+			ws.data(),
+			(int)ws.size(),
+			nullptr,
+			0,
+			nullptr,
+			nullptr);
+		if (u8len < 0)
+			throw std::runtime_error(std::format("WideCharToMultiByte() failed: {}", u8len));
+
+		std::string result(u8len, 0);
+		WideCharToMultiByte(
+			CP_UTF8,
+			0,
+			ws.data(),
+			(int)ws.size(),
+			result.data(),
+			u8len,
+			nullptr,
+			nullptr);
+		return result;
+	}
+
 	[[nodiscard]]
 	std::vector<NetworkInterface> QueryInterfaces()
 	{
@@ -63,8 +93,7 @@ namespace arpt
 	[[nodiscard]]
 	std::string GetNameFromAdapter(const IP_ADAPTER_ADDRESSES* adapter)
 	{
-		static std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> conv;
-		return conv.to_bytes(adapter->FriendlyName);
+		return UTF16ToUTF8(adapter->FriendlyName);
 	}
 
 	[[nodiscard]]
