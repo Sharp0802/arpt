@@ -11,7 +11,7 @@ namespace arpt
 	class NetworkInterfaceListImpl<Windows> final : public NetworkInterfaceListBase
 	{
 	public:
-		NetworkInterfaceListImpl();
+		NetworkInterfaceListImpl(NetworkInterfaceQueryOptions options);
 	};
 
 	template<>
@@ -25,7 +25,7 @@ namespace arpt
 		std::optional<IP> m_Gateway;
 
 	public:
-		NetworkInterfaceImpl(const IP_ADAPTER_ADDRESSES* adapter);
+		NetworkInterfaceImpl(const IP_ADAPTER_ADDRESSES* adapter, NetworkInterfaceQueryOptions options);
 
 		[[nodiscard]]
 		MAC __GetLink() const override;

@@ -35,14 +35,14 @@ namespace arpt
 	}
 
 	[[nodiscard]]
-	std::vector<NetworkInterface> QueryInterfaces()
+	std::vector<NetworkInterface> QueryInterfaces(NetworkInterfaceQueryOptions options)
 	{
 		constexpr ULONG flags = GAA_FLAG_INCLUDE_GATEWAYS;
 
 		ULONG length = BUFSIZ;
 		auto* adapterAddress = reinterpret_cast<IP_ADAPTER_ADDRESSES*>(new uint8_t[length]);
 		if (GetAdaptersAddresses(
-			    AF_UNSPEC,
+			    options.EnableIPv6 ? AF_UNSPEC : AF_INET,
 			    flags,
 			    nullptr,
 			    adapterAddress,
@@ -52,7 +52,7 @@ namespace arpt
 			adapterAddress = reinterpret_cast<IP_ADAPTER_ADDRESSES*>(new uint8_t[length]);
 		}
 		if (auto ret = GetAdaptersAddresses(
-			AF_UNSPEC,
+			options.EnableIPv6 ? AF_UNSPEC : AF_INET,
 			flags,
 			nullptr,
 			adapterAddress,
@@ -68,7 +68,7 @@ namespace arpt
 		{
 			try
 			{
-				auto ptr = std::make_shared<NetworkInterfaceImpl<Windows>>(adapter);
+				auto ptr = std::make_shared<NetworkInterfaceImpl<Windows>>(adapter, options);
 				nics.emplace_back(ptr);
 			}
 			catch (std::exception& e)
@@ -105,18 +105,21 @@ namespace arpt
 
 	template<typename TAddress>
 	[[nodiscard]]
-	std::optional<IP> ExtractIPFromAddresses(TAddress address)
+	std::optional<IP> ExtractIPFromAddresses(TAddress address, bool ipv6)
 	{
 		if (address == nullptr)
 			return std::nullopt;
 
+		std::optional<IP> v6;
 		for (; address; address = address->Next)
 		{
 			switch (address->Address.lpSockaddr->sa_family)
 			{
 			case AF_INET6:
-				// TODO : Support IPv6
+				if (ipv6)
+					v6 = IP(reinterpret_cast<uint8_t*>(address->Address.lpSockaddr->sa_data) + 2, 4);
 				break;
+
 			case AF_INET:
 				return IP(reinterpret_cast<uint8_t*>(address->Address.lpSockaddr->sa_data) + 2, 4);
 
@@ -126,16 +129,18 @@ namespace arpt
 			}
 		}
 
-		return std::nullopt;
+		return v6;
 	}
 
 	[[nodiscard]]
-	std::optional<IP> GetGatewayFromAdapterInfo(const IP_ADAPTER_ADDRESSES* adapter)
+	std::optional<IP> GetGatewayFromAdapterInfo(
+		const IP_ADAPTER_ADDRESSES* adapter,
+		NetworkInterfaceQueryOptions options)
 	{
 		if (adapter->FirstGatewayAddress == nullptr)
 			return std::nullopt;
 
-		if (const auto ip = ExtractIPFromAddresses(adapter->FirstGatewayAddress); ip.has_value())
+		if (const auto ip = ExtractIPFromAddresses(adapter->FirstGatewayAddress, options.EnableIPv6); ip.has_value())
 			return ip;
 
 		errs()
@@ -147,15 +152,18 @@ namespace arpt
 	}
 
 	[[nodiscard]]
-	uint8_t GetMaskFromAdapterInfo(const IP_ADAPTER_ADDRESSES* adapter)
+	uint8_t GetMaskFromAdapterInfo(const IP_ADAPTER_ADDRESSES* adapter, NetworkInterfaceQueryOptions options)
 	{
+		const uint8_t* v6 = nullptr;
 		for (auto* address = adapter->FirstUnicastAddress; address; address = address->Next)
 		{
 			switch (address->Address.lpSockaddr->sa_family)
 			{
 			case AF_INET6:
-				// TODO : Support IPv6
-					break;
+				if (options.EnableIPv6)
+					v6 = &address->OnLinkPrefixLength;
+				break;
+
 			case AF_INET:
 				return address->OnLinkPrefixLength;
 
@@ -164,6 +172,8 @@ namespace arpt
 				break;
 			}
 		}
+		if (v6)
+			return *v6;
 
 		throw std::system_error(
 			std::make_error_code(std::errc::invalid_seek),
@@ -171,9 +181,9 @@ namespace arpt
 	}
 
 	[[nodiscard]]
-	IP GetAddressFromAdapterInfo(const IP_ADAPTER_ADDRESSES* adapter)
+	IP GetAddressFromAdapterInfo(const IP_ADAPTER_ADDRESSES* adapter, NetworkInterfaceQueryOptions options)
 	{
-		if (const auto ip = ExtractIPFromAddresses(adapter->FirstUnicastAddress); ip.has_value())
+		if (const auto ip = ExtractIPFromAddresses(adapter->FirstUnicastAddress, options.EnableIPv6); ip.has_value())
 			return ip.value();
 
 		throw std::system_error(
@@ -182,15 +192,17 @@ namespace arpt
 	}
 
 	[[nodiscard]]
-	std::optional<IP> GetBroadcastFromAdapterInfo(const IP_ADAPTER_ADDRESSES* adapter)
+	std::optional<IP> GetBroadcastFromAdapterInfo(
+		const IP_ADAPTER_ADDRESSES* adapter,
+		NetworkInterfaceQueryOptions options)
 	{
-		if (!GetGatewayFromAdapterInfo(adapter).has_value())
+		if (!GetGatewayFromAdapterInfo(adapter, options).has_value())
 			return std::nullopt;
 
 		ULONG broadcast;
 
-		const auto mask = GetMaskFromAdapterInfo(adapter);
-		const auto ip = GetAddressFromAdapterInfo(adapter);
+		const auto mask = GetMaskFromAdapterInfo(adapter, options);
+		const auto ip = GetAddressFromAdapterInfo(adapter, options);
 
 		ConvertLengthToIpv4Mask(mask, &broadcast);
 		broadcast = ~broadcast;
@@ -199,17 +211,20 @@ namespace arpt
 		return IP(reinterpret_cast<uint8_t*>(&broadcast), 4);
 	}
 
-	NetworkInterfaceListImpl<Windows>::NetworkInterfaceListImpl(): NetworkInterfaceListBase(QueryInterfaces())
+	NetworkInterfaceListImpl<Windows>::NetworkInterfaceListImpl(NetworkInterfaceQueryOptions options)
+		: NetworkInterfaceListBase(QueryInterfaces(options), options)
 	{
 	}
 
-	NetworkInterfaceImpl<Windows>::NetworkInterfaceImpl(const IP_ADAPTER_ADDRESSES* adapter)
+	NetworkInterfaceImpl<Windows>::NetworkInterfaceImpl(
+		const IP_ADAPTER_ADDRESSES* adapter,
+		NetworkInterfaceQueryOptions options)
 		: m_Name(GetNameFromAdapter(adapter)),
 		  m_Link(GetLinkAddressFromAdapter(adapter)),
-		  m_Mask(GetMaskFromAdapterInfo(adapter)),
-		  m_Address(GetAddressFromAdapterInfo(adapter)),
-		  m_Broadcast(GetBroadcastFromAdapterInfo(adapter)),
-		  m_Gateway(GetGatewayFromAdapterInfo(adapter))
+		  m_Mask(GetMaskFromAdapterInfo(adapter, options)),
+		  m_Address(GetAddressFromAdapterInfo(adapter, options)),
+		  m_Broadcast(GetBroadcastFromAdapterInfo(adapter, options)),
+		  m_Gateway(GetGatewayFromAdapterInfo(adapter, options))
 	{
 	}
 
