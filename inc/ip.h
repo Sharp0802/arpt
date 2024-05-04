@@ -58,6 +58,7 @@ namespace arpt
         IP(const uint8_t* data, uint8_t version);
 
         explicit IP(std::array<uint8_t, 16> data);
+
         explicit IP(std::array<uint8_t, 4> data);
 
         [[nodiscard]]

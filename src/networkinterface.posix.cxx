@@ -289,8 +289,8 @@ namespace arpt
                 continue;
 
             std::optional<IP> gateway = gateways.contains(net->ifa_name)
-                ? std::optional(gateways.extract(net->ifa_name).mapped())
-                : std::nullopt;
+                                            ? std::optional(gateways.extract(net->ifa_name).mapped())
+                                            : std::nullopt;
             if (gateway && gateway.value().Version == 6 && !options.EnableIPv6)
                 gateway = std::nullopt;
 

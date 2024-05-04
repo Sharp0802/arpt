@@ -66,7 +66,9 @@ namespace arpt
     protected:
         NetworkInterfaceQueryOptions m_Options;
 
-        explicit NetworkInterfaceListBase(std::vector<NetworkInterface> interfaces, NetworkInterfaceQueryOptions options);
+        explicit NetworkInterfaceListBase(
+            std::vector<NetworkInterface> interfaces,
+            NetworkInterfaceQueryOptions options);
 
     public:
         [[nodiscard]]
