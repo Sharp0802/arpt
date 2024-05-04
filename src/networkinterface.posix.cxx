@@ -146,7 +146,7 @@ namespace arpt
                 if (~std::stoi(flags) & RTF_GATEWAY)
                     continue;
 
-                auto gwN = std::stoi(gwH, nullptr, 16);
+                auto gwN = std::stoul(gwH, nullptr, 16);
                 map.emplace(name, IP{ reinterpret_cast<uint8_t*>(&gwN), 4 });
             }
 
@@ -223,7 +223,8 @@ namespace arpt
 
     std::optional<IP> RetrieveBroadcastFromIFA(const ifaddrs* ifa)
     {
-        if (~ifa->ifa_flags & IFF_BROADCAST)
+        if (~ifa->ifa_flags & IFF_BROADCAST ||
+            ifa->ifa_broadaddr == nullptr)
             return std::nullopt;
 
         switch (ifa->ifa_broadaddr->sa_family)
@@ -254,6 +255,10 @@ namespace arpt
         std::map<std::string, std::pair<ifaddrs*, ifaddrs*>> ifas;
         for (auto* ifap = ifa; ifap; ifap = ifap->ifa_next)
         {
+            if (ifap->ifa_name == nullptr ||
+                ifap->ifa_addr == nullptr)
+                continue;
+
             switch (ifap->ifa_addr->sa_family)
             {
             case AF_PACKET:
