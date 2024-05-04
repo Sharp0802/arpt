@@ -45,7 +45,7 @@ if (WIN32)
     elseif (CMAKE_SYSTEM_PROCESSOR STREQUAL "ARM64")
         set(PCAP_DIRECTORY "${CMAKE_BINARY_DIR}/npcap/Lib/ARM64/")
     else ()
-        message(FATAL_ERROR "Architecture '${CMAKE_SYSTEM_PROCESSOR}' is not supported.")
+        message(FATAL_ERROR "Architecture '${CMAKE_SYSTEM_PROCESSOR}' is not supported (AMD64; X86; ARM64).")
     endif ()
     message(STATUS "NPCAP ${NPCAP_VERSION} is configured")
 
