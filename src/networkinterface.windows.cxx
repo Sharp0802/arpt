@@ -1,5 +1,7 @@
 #include "networkinterface.windows.h"
 
+#if _WIN32
+
 #include <codecvt>
 #include <functional>
 #include <map>
@@ -220,3 +222,5 @@ namespace arpt
 		return m_Name;
 	}
 }
+
+#endif
