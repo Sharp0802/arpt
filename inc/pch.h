@@ -8,6 +8,7 @@
 #include <cstring>
 #include <format>
 #include <functional>
+#include <fstream>
 #include <iostream>
 #include <memory>
 #include <map>
@@ -33,6 +34,7 @@
 #include <unistd.h>
 #include <arpa/inet.h>
 #include <net/if.h>
+#include <net/route.h>
 #include <sys/types.h>
 #include <ifaddrs.h>
 

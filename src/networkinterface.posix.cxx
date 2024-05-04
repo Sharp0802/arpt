@@ -50,6 +50,7 @@ namespace arpt
 
     std::map<std::string, IP> QueryDefaultGateway()
     {
+#if USE_NETLINK
         std::vector<uint8_t> buffer(BUFSIZ, 0);
         int seq = 0;
 
@@ -118,6 +119,46 @@ namespace arpt
         }
 
         return map;
+#else //USE_NETLINK
+
+        std::map<std::string, IP> map;
+        {
+            std::ifstream ifs("/proc/net/route");
+
+            std::string tmp;
+            std::getline(ifs, tmp); // Ignore header
+
+            while (std::getline(ifs, tmp))
+            {
+                constexpr char delim = '\t';
+
+                std::stringstream line(tmp);
+
+                std::string name;
+                std::getline(line, name, delim);
+
+                std::string dst;
+                getline(line, dst, delim);
+                if (dst != "00000000")
+                    continue;
+
+                std::string gwH;
+                getline(line, gwH, delim);
+
+                std::string flags;
+                getline(line, flags, delim);
+                if (~std::stoi(flags) & RTF_GATEWAY)
+                    continue;
+
+                auto gwN = std::stoi(gwH, nullptr, 16);
+                map.emplace(name, IP{ reinterpret_cast<uint8_t*>(&gwN), 4 });
+            }
+
+            ifs.close();
+        }
+        return map;
+
+#endif //USE_NETLINK
     }
 
 #if __linux__
