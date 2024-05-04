@@ -68,9 +68,10 @@ int main(int argc, char* argv[])
      *********************************/
     {
         HANDLE out = GetStdHandle(STD_OUTPUT_HANDLE);
+        DWORD mode = 0;
+
         if (out == INVALID_HANDLE_VALUE)
             goto CONSOLE_INIT_ERROR;
-        DWORD mode = 0;
         if (!GetConsoleMode(out, &mode))
             goto CONSOLE_INIT_ERROR;
         mode |= ENABLE_VIRTUAL_TERMINAL_PROCESSING;
