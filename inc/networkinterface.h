@@ -5,6 +5,11 @@
 
 namespace arpt
 {
+    struct NetworkInterfaceQueryOptions
+    {
+        bool EnableIPv6;
+    };
+
     class NetworkInterfaceBase;
 
     using NetworkInterface = std::shared_ptr<NetworkInterfaceBase>;
@@ -59,7 +64,9 @@ namespace arpt
         std::vector<NetworkInterface> m_Interfaces;
 
     protected:
-        explicit NetworkInterfaceListBase(std::vector<NetworkInterface> interfaces);
+        NetworkInterfaceQueryOptions m_Options;
+
+        explicit NetworkInterfaceListBase(std::vector<NetworkInterface> interfaces, NetworkInterfaceQueryOptions options);
 
     public:
         [[nodiscard]]
@@ -72,7 +79,7 @@ namespace arpt
     using NetworkInterfaceList = std::shared_ptr<NetworkInterfaceListBase>;
 
     [[nodiscard]]
-    NetworkInterfaceList QueryNetworkInterfaceList();
+    NetworkInterfaceList QueryNetworkInterfaceList(NetworkInterfaceQueryOptions options);
 }
 
 #endif //NETWORKINTERFACE_H

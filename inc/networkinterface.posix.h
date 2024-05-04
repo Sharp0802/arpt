@@ -11,7 +11,7 @@ namespace arpt
     class NetworkInterfaceListImpl<POSIX> final : public NetworkInterfaceListBase
     {
     public:
-        explicit NetworkInterfaceListImpl();
+        explicit NetworkInterfaceListImpl(NetworkInterfaceQueryOptions options);
     };
 
     template<>

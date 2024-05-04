@@ -246,7 +246,7 @@ namespace arpt
         }
     }
 
-    std::vector<NetworkInterface> RetrieveInterfaceList()
+    std::vector<NetworkInterface> RetrieveInterfaceList(NetworkInterfaceQueryOptions options)
     {
         ifaddrs* ifa;
         if (getifaddrs(&ifa) < 0)
@@ -270,7 +270,7 @@ namespace arpt
                 break;
 
             case AF_INET6:
-                if (!ifas[ifap->ifa_name].second)
+                if (options.EnableIPv6 && !ifas[ifap->ifa_name].second)
                     ifas[ifap->ifa_name].second = ifap;
                 break;
 
@@ -291,6 +291,9 @@ namespace arpt
             std::optional<IP> gateway = gateways.contains(net->ifa_name)
                 ? std::optional(gateways.extract(net->ifa_name).mapped())
                 : std::nullopt;
+            if (gateway && gateway.value().Version == 6 && !options.EnableIPv6)
+                gateway = std::nullopt;
+
             nis.push_back(std::make_shared<NetworkInterfaceImpl<POSIX>>(net, link, gateway));
         }
 
@@ -299,8 +302,8 @@ namespace arpt
         return nis;
     }
 
-    NetworkInterfaceListImpl<POSIX>::NetworkInterfaceListImpl()
-        : NetworkInterfaceListBase(RetrieveInterfaceList())
+    NetworkInterfaceListImpl<POSIX>::NetworkInterfaceListImpl(NetworkInterfaceQueryOptions options)
+        : NetworkInterfaceListBase(RetrieveInterfaceList(options), options)
     {
     }
 
