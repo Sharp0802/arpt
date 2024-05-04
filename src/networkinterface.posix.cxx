@@ -88,10 +88,6 @@ namespace arpt
                 rtmsg->rtm_table != RT_TABLE_MAIN)
                 continue;
 
-            // TODO : Support INET6
-            if (rtmsg->rtm_family == AF_INET6)
-                continue;
-
             char name[16];
             const uint8_t* address = nullptr;
 
