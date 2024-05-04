@@ -54,6 +54,24 @@ if (WIN32)
     #################################################
     set(ARPT_LINK_LIBRARIES ws2_32 iphlpapi wpcap)
 
+elseif (CMAKE_SYSTEM_NAME STREQUAL "Android")
+
+    #################################################
+    # Fetch pre-compiled libpcap for Android        #
+    #################################################
+    file (
+        DOWNLOAD
+        "https://raw.githubusercontent.com/seladb/libpcap-android/main/${CMAKE_ANDROID_ARCH_ABI}/${CMAKE_SYSTEM_VERSION}/libpcap.a"
+        "${CMAKE_BINARY_DIR}/libpcap.a"
+    )
+    set(PCAP_DIRECTORY "${CMAKE_BINARY_DIR}")
+    message(STATUS "PCAP (${CMAKE_ANDROID_ARCH_ABI}; API ${CMAKE_SYSTEM_VERSION}) configured")
+
+    #################################################
+    # Link Configurations                           #
+    #################################################
+    set(ARPT_LINK_LIBRARIES pcap)
+
 else ()
 
     #################################################
