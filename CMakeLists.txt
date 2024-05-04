@@ -12,7 +12,7 @@ set(NPCAP_VERSION 1.13)
 #################################################
 set(CMAKE_CXX_STANDARD 26)
 if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
-    set(ARPT_COMPILE_OPTIONS -fno-rtti -fdeclspec -fms-extensions)
+    set(ARPT_COMPILE_OPTIONS -fno-rtti -fdeclspec -fms-extensions -Wno-microsoft-goto)
 elseif (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
     set(ARPT_COMPILE_OPTIONS /GR-)
 else ()

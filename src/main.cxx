@@ -22,11 +22,9 @@ SUBCOMMAND
 
 int ListDevs()
 {
-    auto list = arpt::QueryNetworkInterfaceList();
-
     std::stringstream ss;
     ss << "\n                                  NAME LINK                           IP/MASK GATEWAY         BROADCAST";
-    for (const auto& dev: list->Get())
+    for (const auto& dev: arpt::QueryNetworkInterfaceList()->Get())
     {
         ss << std::format("\n{:>38} {:17} {:>15}/{:<3}  {:15} {:15}",
             dev->Name,
@@ -43,6 +41,31 @@ int ListDevs()
 
 int main(int argc, char* argv[])
 {
+#if _WIN32
+    /*********************************
+     * Enable SGR terminal sequences *
+     *********************************/
+    {
+        HANDLE out = GetStdHandle(STD_OUTPUT_HANDLE);
+        if (out == INVALID_HANDLE_VALUE)
+            goto CONSOLE_INIT_ERROR;
+        DWORD mode = 0;
+        if (!GetConsoleMode(out, &mode))
+            goto CONSOLE_INIT_ERROR;
+        mode |= ENABLE_VIRTUAL_TERMINAL_PROCESSING;
+        if (!SetConsoleMode(out, mode))
+            goto CONSOLE_INIT_ERROR;
+
+        if (false)
+        {
+            CONSOLE_INIT_ERROR:
+            arpt::errs() << std::format(
+                "Couldn't enable virtual sequence: {}",
+                std::system_category().message(static_cast<int>(GetLastError()))) << arpt::endl;
+        }
+    }
+#endif
+
     static std::map<std::string, std::function<Subcommand>> s_Handler = {
         {
             "help", [](auto)
