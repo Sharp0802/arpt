@@ -1,9 +1,7 @@
 #ifndef IP_H
 #define IP_H
 
-#include <array>
-#include <cstdint>
-#include <format>
+#include "module.h"
 
 namespace arpt
 {

@@ -1,14 +1,7 @@
-
 #ifndef NETWORKINTERFACE_H
 #define NETWORKINTERFACE_H
 
-#include <memory>
-#include <optional>
-#include <vector>
-
-#include "ip.h"
-#include "mac.h"
-#include "os.h"
+#include "module.h"
 
 namespace arpt
 {

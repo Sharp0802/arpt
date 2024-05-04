@@ -1,14 +1,4 @@
-#include <utility>
-
-#include "networkinterface.h"
-
-#include "log.h"
-
-#if _WIN32
-#include "networkinterface.windows.h"
-#else
-#include "networkinterface.posix.h"
-#endif
+#include "module.h"
 
 namespace arpt
 {

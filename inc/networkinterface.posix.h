@@ -3,10 +3,7 @@
 
 #if __unix__
 
-#include <ifaddrs.h>
-#include <string>
-
-#include "networkinterface.h"
+#include "module.h"
 
 namespace arpt
 {

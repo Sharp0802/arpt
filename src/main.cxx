@@ -1,8 +1,3 @@
-#include <functional>
-#include <iostream>
-#include <map>
-#include <sstream>
-
 #include "module.h"
 
 using Subcommand = int(std::vector<std::string>);

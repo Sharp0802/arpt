@@ -66,8 +66,8 @@ endif ()
 #################################################
 # File Configurations                           #
 #################################################
-file(GLOB_RECURSE SOURCES src/*.cxx)
-file(GLOB_RECURSE HEADERS inc/*.h)
+file(GLOB_RECURSE SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cxx")
+file(GLOB_RECURSE HEADERS "${CMAKE_CURRENT_SOURCE_DIR}/inc/*.h")
 
 #################################################
 # Header Management Automation                  #
@@ -84,9 +84,10 @@ configure_file(module.h.in module.h)
 #################################################
 add_executable(arpt ${HEADERS} ${SOURCES})
 target_include_directories(arpt PRIVATE
-    ${CMAKE_CURRENT_SOURCE_DIR}/inc
-    ${CMAKE_CURRENT_BINARY_DIR}
+    "${CMAKE_CURRENT_SOURCE_DIR}/inc"
+    "${CMAKE_CURRENT_BINARY_DIR}"
 )
+target_precompile_headers(arpt PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/inc/pch.h")
 target_compile_options(arpt PRIVATE ${ARPT_COMPILE_OPTIONS})
 target_link_directories(arpt PRIVATE ${PCAP_DIRECTORY})
 target_link_libraries(arpt PRIVATE ${ARPT_LINK_LIBRARIES})

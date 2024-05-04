@@ -4,6 +4,9 @@
 #define VERSION "${VERSION}"
 #define TIMESTAMP "${TIMESTAMP}"
 
+#include "pch.h"
+#include "os.h"
+
 ${INCLUDES}
 
 #endif

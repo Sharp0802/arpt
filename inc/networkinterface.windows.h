@@ -3,13 +3,7 @@
 
 #if _WIN32
 
-#include <winsock2.h>
-#include <windows.h>
-#include <ws2ipdef.h>
-#include <iphlpapi.h>
-#include <ipmib.h>
-
-#include "networkinterface.h"
+#include "module.h"
 
 namespace arpt
 {

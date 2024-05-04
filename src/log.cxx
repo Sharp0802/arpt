@@ -1,8 +1,4 @@
-#include "log.h"
-
-#include <atomic>
-#include <chrono>
-#include <iostream>
+#include "module.h"
 
 namespace arpt
 {

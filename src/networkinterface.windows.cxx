@@ -1,14 +1,6 @@
-#include "networkinterface.windows.h"
-
 #if _WIN32
 
-#include <codecvt>
-#include <functional>
-#include <map>
-#include <ranges>
-#include <ws2tcpip.h>
-
-#include "log.h"
+#include "module.h"
 
 namespace arpt
 {

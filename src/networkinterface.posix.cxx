@@ -1,24 +1,6 @@
-#include "networkinterface.posix.h"
-
 #if __unix__
 
-#include <cstring>
-#include <map>
-#include <ranges>
-#include <unistd.h>
-#include <arpa/inet.h>
-#include <net/if.h>
-#include <sys/types.h>
-#include <ifaddrs.h>
-
-#if __linux__
-#include <linux/if_packet.h> // sockaddr_ll
-#include <linux/rtnetlink.h>
-#else
-#include <net/if_dl.h> // sockaddr_dl
-#include <netlink/netlink.h>
-#include <netlink/netlink_route.h>
-#endif
+#include "module.h"
 
 #define THROW_ERRNO(msg) throw std::system_error(errno, std::generic_category(), msg)
 

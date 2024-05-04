@@ -1,5 +1,5 @@
-#ifndef OS_H
-#define OS_H
+#ifndef ARPT_OS_H
+#define ARPT_OS_H
 
 namespace arpt
 {
@@ -14,8 +14,6 @@ namespace arpt
         Current = Windows
 #endif
     };
-
-
 }
 
-#endif //OS_H
+#endif //ARPT_OS_H

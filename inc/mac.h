@@ -1,8 +1,7 @@
 #ifndef MAC_H
 #define MAC_H
 
-#include <array>
-#include <cstdint>
+#include "module.h"
 
 namespace arpt
 {
