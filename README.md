@@ -6,6 +6,7 @@ A cross-platform ARP toolkit written with modern C++.
 
 ### Windows
 
+- Clang (17 or above) or MSVC (latest)
 - Windows Vista or above (`GetAdaptersAddresses`)
 
 ### Unix-like
