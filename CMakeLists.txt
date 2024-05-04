@@ -1,11 +1,20 @@
 cmake_minimum_required(VERSION 3.27)
 project(arpt)
 
+#
+# NPCAP_VERSION : A version of NPcap to use
+#                 Default: 1.13
+# USE_NETLINK   : ON if netlink should be used to resolving gateways; otherwise, OFF.
+#                 Default: ON; OFF(Android)
+#
+
 #################################################
 # Versioning                                    #
 #################################################
 set(VERSION 0.0.1)
-set(NPCAP_VERSION 1.13)
+if (NOT EXISTS NPCAP_VERSION)
+    set(NPCAP_VERSION 1.13)
+endif ()
 
 #################################################
 # Compile Option Configurations                 #
@@ -72,12 +81,34 @@ elseif (CMAKE_SYSTEM_NAME STREQUAL "Android")
     #################################################
     set(ARPT_LINK_LIBRARIES pcap)
 
+    #################################################
+    # Compile Option Configurations                 #
+    #################################################
+    if (USE_NETLINK)
+        message(WARNING "Netlink is not supported on Android; An option 'USE_NETLINK' will be ignored.")
+    endif ()
+    set(ARPT_DEFINITIONS ${ARPT_DEFINITIONS} -DUSE_NETLINK=0)
+
 else ()
 
     #################################################
     # Link Configurations                           #
     #################################################
     set(ARPT_LINK_LIBRARIES pcap)
+
+    #################################################
+    # Compile Option Configurations                 #
+    #################################################
+    if (NOT EXISTS USE_NETLINK)
+        message(STATUS "'USE_NETLINK' defaults to ON")
+        set(USE_NETLINK ON)
+    endif ()
+    if (USE_NETLINK)
+        set(USE_NETLINK_DEF 1)
+    else ()
+        set(USE_NETLINK_DEF 0)
+    endif ()
+    set(ARPT_DEFINITIONS ${ARPT_DEFINITIONS} -DUSE_NETLINK=${USE_NETLINK_DEF})
 
 endif ()
 
@@ -105,6 +136,7 @@ target_include_directories(arpt PRIVATE
     "${CMAKE_CURRENT_SOURCE_DIR}/inc"
     "${CMAKE_CURRENT_BINARY_DIR}"
 )
+target_compile_definitions(arpt PRIVATE ${ARPT_DEFINITIONS})
 target_precompile_headers(arpt PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/inc/pch.h")
 target_compile_options(arpt PRIVATE ${ARPT_COMPILE_OPTIONS})
 target_link_directories(arpt PRIVATE ${PCAP_DIRECTORY})
