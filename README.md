@@ -40,4 +40,4 @@ $ make -j
 - `NPCAP_VERSION:VERSION` : NPcap version to use (only Windows)
   - Default is `1.13`
 - `USE_NETLINK:BOOL` : Whether Netlink should be used as default gateway resolver (only *nix)
-  - Default is 'OFF' on Android, otherwise 'ON'
+  - Default is `OFF` on Android, otherwise `ON`
