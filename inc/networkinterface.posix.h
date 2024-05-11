@@ -38,17 +38,17 @@ namespace arpt
     template<>
     class NetworkInterfaceImpl<POSIX> final : public NetworkInterfaceBase
     {
-        std::string m_Name;
-        MAC m_Link;
-        uint8_t m_Mask;
-        IP m_Address;
+        std::string       m_Name;
+        MAC               m_Link;
+        uint8_t           m_Mask;
+        IP                m_Address;
         std::optional<IP> m_Broadcast;
         std::optional<IP> m_Gateway;
 
     public:
         NetworkInterfaceImpl(
-            const ifaddrs* netIFA,
-            const ifaddrs* linkIFA,
+            const ifaddrs*    netIFA,
+            const ifaddrs*    linkIFA,
             std::optional<IP> gateway);
 
         ~NetworkInterfaceImpl() override = default;

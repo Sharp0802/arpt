@@ -25,7 +25,7 @@ namespace arpt
 {
     NetworkInterfaceListBase::NetworkInterfaceListBase(
         std::vector<NetworkInterface> interfaces,
-        NetworkInterfaceQueryOptions options)
+        NetworkInterfaceQueryOptions  options)
         : m_Interfaces(std::move(interfaces)),
           m_Options(options)
     {

@@ -72,8 +72,8 @@ namespace arpt
     class IP
     {
         std::uint8_t m_Version;
-        IPImpl<4> m_4;
-        IPImpl<6> m_6;
+        IPImpl<4>    m_4;
+        IPImpl<6>    m_6;
 
     public:
         IP(const uint8_t* data, uint8_t version);

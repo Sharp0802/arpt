@@ -91,18 +91,18 @@ namespace arpt
     {
         switch (version)
         {
-        case 4:
-            m_Version = 4;
-            m_4 = IPImpl<4>(data);
-            break;
-        case 6:
-            m_Version = 6;
-            m_6 = IPImpl<6>(data);
-            break;
-        default:
-            throw std::system_error(
-                std::make_error_code(std::errc::invalid_argument),
-                "Invalid internet protocol version");
+            case 4:
+                m_Version = 4;
+                m_4 = IPImpl<4>(data);
+                break;
+            case 6:
+                m_Version = 6;
+                m_6 = IPImpl<6>(data);
+                break;
+            default:
+                throw std::system_error(
+                    std::make_error_code(std::errc::invalid_argument),
+                    "Invalid internet protocol version");
         }
     }
 
@@ -141,14 +141,14 @@ namespace arpt
     {
         switch (m_Version)
         {
-        case 4:
-            return m_4;
-        case 6:
-            return m_6;
-        default:
-            throw std::system_error(
-                std::make_error_code(std::errc::address_family_not_supported),
-                "Invalid internet protocol version");
+            case 4:
+                return m_4;
+            case 6:
+                return m_6;
+            default:
+                throw std::system_error(
+                    std::make_error_code(std::errc::address_family_not_supported),
+                    "Invalid internet protocol version");
         }
     }
 
@@ -156,14 +156,14 @@ namespace arpt
     {
         switch (m_Version)
         {
-        case 4:
-            return m_4.ToString();
-        case 6:
-            return m_6.ToString();
-        default:
-            throw std::system_error(
-                std::make_error_code(std::errc::address_family_not_supported),
-                "Invalid internet protocol version");
+            case 4:
+                return m_4.ToString();
+            case 6:
+                return m_6.ToString();
+            default:
+                throw std::system_error(
+                    std::make_error_code(std::errc::address_family_not_supported),
+                    "Invalid internet protocol version");
         }
     }
 }

@@ -32,7 +32,7 @@ namespace
         auto* cursor = buffer.data();
 
         nlmsghdr* hdr;
-        size_t msgLength = 0;
+        size_t    msgLength = 0;
 
         const auto pid = getpid();
         do
@@ -73,7 +73,7 @@ namespace arpt
     {
 #if USE_NETLINK
         std::vector<uint8_t> buffer(BUFSIZ, 0);
-        int seq = 0;
+        int                  seq = 0;
 
 
         auto* msg        = reinterpret_cast<nlmsghdr*>(buffer.data());
@@ -104,12 +104,11 @@ namespace arpt
         for (; NLMSG_OK(msg, len); msg = NLMSG_NEXT(msg, len))
         {
             const auto* rtmsg = static_cast<::rtmsg*>(NLMSG_DATA(msg));
-            if ((rtmsg->rtm_family != AF_INET &&
-                 rtmsg->rtm_family != AF_INET6) ||
+            if ((rtmsg->rtm_family != AF_INET && rtmsg->rtm_family != AF_INET6) ||
                 rtmsg->rtm_table != RT_TABLE_MAIN)
                 continue;
 
-            char name[16];
+            char           name[16];
             const uint8_t* address = nullptr;
 
             auto rtlen = RTM_PAYLOAD(msg);
@@ -117,15 +116,15 @@ namespace arpt
             {
                 switch (attr->rta_type)
                 {
-                case RTA_OIF:
-                    if_indextoname(*static_cast<uint32_t*>(RTA_DATA(attr)), name);
-                    break;
-                case RTA_GATEWAY:
-                    address = static_cast<uint8_t*>(RTA_DATA(attr));
-                    break;
+                    case RTA_OIF:
+                        if_indextoname(*static_cast<uint32_t*>(RTA_DATA(attr)), name);
+                        break;
+                    case RTA_GATEWAY:
+                        address = static_cast<uint8_t*>(RTA_DATA(attr));
+                        break;
 
-                default:
-                    break;
+                    default:
+                        break;
                 }
             }
 
@@ -202,25 +201,25 @@ namespace arpt
     {
         switch (ifa->ifa_netmask->sa_family)
         {
-        case AF_INET:
-            return std::popcount(reinterpret_cast<sockaddr_in*>(ifa->ifa_netmask)->sin_addr.s_addr);
-        case AF_INET6:
-        {
+            case AF_INET:
+                return std::popcount(reinterpret_cast<sockaddr_in*>(ifa->ifa_netmask)->sin_addr.s_addr);
+            case AF_INET6:
+            {
 #if __ANDROID__
-            uint8_t mask = 0;
-            for (auto i = 0; i < 4; ++i)
-                mask += std::popcount(reinterpret_cast<sockaddr_in6*>(ifa->ifa_netmask)->sin6_addr.s6_addr32[i]);
-            return mask;
+                uint8_t mask = 0;
+                for (auto i = 0; i < 4; ++i)
+                    mask += std::popcount(reinterpret_cast<sockaddr_in6*>(ifa->ifa_netmask)->sin6_addr.s6_addr32[i]);
+                return mask;
 #else
-            return std::popcount(
-                *reinterpret_cast<__uint128_t*>(
-                    &reinterpret_cast<sockaddr_in6*>(ifa->ifa_netmask)->sin6_addr
-                )
-            );
+                return std::popcount(
+                    *reinterpret_cast<__uint128_t*>(
+                        &reinterpret_cast<sockaddr_in6*>(ifa->ifa_netmask)->sin6_addr
+                    )
+                );
 #endif
-        }
-        default:
-            ADDRESS_FAMILY_NOT_SUPPORTED();
+            }
+            default:
+                ADDRESS_FAMILY_NOT_SUPPORTED();
         }
     }
 
@@ -228,17 +227,17 @@ namespace arpt
     {
         switch (sa->sa_family)
         {
-        case AF_INET:
-            return {
-                reinterpret_cast<const uint8_t*>(
-                    &reinterpret_cast<const sockaddr_in*>(sa)->sin_addr.s_addr
-                ),
-                4
-            };
-        case AF_INET6:
-            return { reinterpret_cast<const sockaddr_in6*>(sa)->sin6_addr.s6_addr, 6 };
-        default:
-            ADDRESS_FAMILY_NOT_SUPPORTED();
+            case AF_INET:
+                return {
+                    reinterpret_cast<const uint8_t*>(
+                        &reinterpret_cast<const sockaddr_in*>(sa)->sin_addr.s_addr
+                    ),
+                    4
+                };
+            case AF_INET6:
+                return { reinterpret_cast<const sockaddr_in6*>(sa)->sin6_addr.s6_addr, 6 };
+            default:
+                ADDRESS_FAMILY_NOT_SUPPORTED();
         }
     }
 
@@ -250,20 +249,20 @@ namespace arpt
 
         switch (ifa->ifa_broadaddr->sa_family)
         {
-        case AF_INET:
-            return IP{
-                reinterpret_cast<const uint8_t*>(
-                    &reinterpret_cast<const sockaddr_in*>(ifa->ifa_broadaddr)->sin_addr.s_addr
-                ),
-                4
-            };
-        case AF_INET6:
-            return IP{
-                reinterpret_cast<const sockaddr_in6*>(ifa->ifa_broadaddr)->sin6_addr.s6_addr,
-                6
-            };
-        default:
-            ADDRESS_FAMILY_NOT_SUPPORTED();
+            case AF_INET:
+                return IP{
+                    reinterpret_cast<const uint8_t*>(
+                        &reinterpret_cast<const sockaddr_in*>(ifa->ifa_broadaddr)->sin_addr.s_addr
+                    ),
+                    4
+                };
+            case AF_INET6:
+                return IP{
+                    reinterpret_cast<const sockaddr_in6*>(ifa->ifa_broadaddr)->sin6_addr.s6_addr,
+                    6
+                };
+            default:
+                ADDRESS_FAMILY_NOT_SUPPORTED();
         }
     }
 
@@ -282,21 +281,21 @@ namespace arpt
 
             switch (ifap->ifa_addr->sa_family)
             {
-            case AF_PACKET:
-                ifas[ifap->ifa_name].first = ifap;
-                break;
+                case AF_PACKET:
+                    ifas[ifap->ifa_name].first = ifap;
+                    break;
 
-            case AF_INET:
-                ifas[ifap->ifa_name].second = ifap;
-                break;
-
-            case AF_INET6:
-                if (options.EnableIPv6 && !ifas[ifap->ifa_name].second)
+                case AF_INET:
                     ifas[ifap->ifa_name].second = ifap;
-                break;
+                    break;
 
-            default:
-                break;
+                case AF_INET6:
+                    if (options.EnableIPv6 && !ifas[ifap->ifa_name].second)
+                        ifas[ifap->ifa_name].second = ifap;
+                    break;
+
+                default:
+                    break;
             }
         }
 
@@ -329,8 +328,8 @@ namespace arpt
     }
 
     NetworkInterfaceImpl<POSIX>::NetworkInterfaceImpl(
-        const ifaddrs* netIFA,
-        const ifaddrs* linkIFA,
+        const ifaddrs*          netIFA,
+        const ifaddrs*          linkIFA,
         const std::optional<IP> gateway)
         : m_Name(netIFA->ifa_name),
           m_Link(RetrieveLinkFromIFA(linkIFA->ifa_addr)),

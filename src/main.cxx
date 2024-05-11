@@ -47,7 +47,8 @@ int ListDevs()
     ss << "\n                                  NAME LINK                           IP/MASK GATEWAY         BROADCAST";
     for (const auto& dev: arpt::QueryNetworkInterfaceList({ true })->Get())
     {
-        ss << std::format("\n{:>38} {:17} {:>15}/{:<3}  {:15} {:15}",
+        ss << std::format(
+            "\n{:>38} {:17} {:>15}/{:<3}  {:15} {:15}",
             dev->Name,
             dev->Link.ToString(),
             dev->Address.ToString(),

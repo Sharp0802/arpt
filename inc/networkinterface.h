@@ -89,7 +89,7 @@ namespace arpt
 
         explicit NetworkInterfaceListBase(
             std::vector<NetworkInterface> interfaces,
-            NetworkInterfaceQueryOptions options);
+            NetworkInterfaceQueryOptions  options);
 
     public:
         [[nodiscard]]

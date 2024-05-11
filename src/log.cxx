@@ -26,7 +26,7 @@ namespace arpt
     auto getThreadId()
     {
         static std::atomic_uint8_t count{ 0 };
-        thread_local uint8_t id = count.fetch_add(1);
+        thread_local uint8_t       id = count.fetch_add(1);
         return id;
     }
 
