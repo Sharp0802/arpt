@@ -29,7 +29,7 @@ namespace arpt
     class IPImpl;
 
     template<>
-    class IPImpl<4>
+    class __attribute__((packed, aligned(1))) IPImpl<4> final
     {
         std::array<uint8_t, 4> m_Data;
 
@@ -49,7 +49,13 @@ namespace arpt
     };
 
     template<>
-    class IPImpl<6>
+    struct ARPType<IPImpl<4>>
+    {
+        uint16_t Value = 0x0800;
+    };
+
+    template<>
+    class __attribute__((packed, aligned(1))) IPImpl<6> final
     {
         std::array<uint8_t, 16> m_Data;
 
@@ -66,6 +72,12 @@ namespace arpt
 
         [[nodiscard]]
         std::string ToString() const;
+    };
+
+    template<>
+    struct ARPType<IPImpl<6>>
+    {
+        static_assert("IPv6 doesn't use ARP; see NDP (https://en.wikipedia.org/wiki/Neighbor_Discovery_Protocol).");
     };
 
     class IP
@@ -94,7 +106,7 @@ namespace arpt
         IPImpl<4> IPv4;
 
         __declspec(property(get=__GetIPv6))
-        IPImpl<4> IPv6;
+        IPImpl<6> IPv6;
 
         __declspec(property(get=__GetVersion))
         uint8_t Version;

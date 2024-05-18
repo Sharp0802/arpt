@@ -18,37 +18,8 @@
  * If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef MAC_H
-#define MAC_H
-
-#include "module.h"
+#include "arp.h"
 
 namespace arpt
 {
-    class __attribute__((packed, aligned(1))) MAC final
-    {
-        std::array<uint8_t, 6> m_Data;
-
-    public:
-        explicit MAC(const uint8_t* data);
-
-        explicit MAC(std::array<uint8_t, 6> data);
-
-        [[nodiscard]]
-        operator std::array<uint8_t, 6>() const;
-
-        [[nodiscard]]
-        operator const uint8_t*() const;
-
-        [[nodiscard]]
-        std::string ToString() const;
-    };
-
-    template<>
-    struct ARPType<MAC>
-    {
-        uint16_t Value = 0x0001;
-    };
 }
-
-#endif //MAC_H
