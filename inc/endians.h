@@ -39,7 +39,7 @@ namespace arpt
 
     public:
         // NOLINTNEXTLINE(*-explicit-constructor)
-        BigEndian(T&& value) : m_Value(InverseBytes(value))
+        BigEndian(T value) : m_Value(InverseBytes(value))
         {
         }
 
