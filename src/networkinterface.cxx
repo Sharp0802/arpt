@@ -27,6 +27,11 @@
 #include "networkinterface.posix.h"
 #include "networkinterface.windows.h"
 
+static arpt::NetworkInterfaceQueryOptions s_CachedOptions;
+static arpt::NetworkInterfaceList s_Cached;
+
+static std::mutex s_Mutex;
+
 namespace arpt
 {
     NetworkInterfaceListBase::NetworkInterfaceListBase(
@@ -44,6 +49,10 @@ namespace arpt
 
     NetworkInterfaceList QueryNetworkInterfaceList(NetworkInterfaceQueryOptions options)
     {
-        return std::make_shared<NetworkInterfaceListImpl<Current>>(options);
+        std::lock_guard lock{ s_Mutex };
+
+        if (s_CachedOptions != options)
+            s_Cached = std::make_shared<NetworkInterfaceListImpl<Current>>(options);
+        return s_Cached;
     }
 }
