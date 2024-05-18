@@ -26,12 +26,21 @@ namespace arpt
 {
     template<typename T>
     struct ARPType;
+}
 
-    template<typename THardware, typename TProtocol>
+#define ARPTYPE_DEFINED 1
+
+#include "ip.h"
+#include "mac.h"
+
+#undef ARPTYPE_DEFINED
+
+namespace arpt
+{
     struct ARPPeer
     {
-        THardware HardwareAddress;
-        TProtocol ProtocolAddress;
+        MAC       HardwareAddress;
+        IPImpl<4> ProtocolAddress;
     };
 
     enum ARPOperation : uint16_t
@@ -40,71 +49,35 @@ namespace arpt
         ARP_Reply   = 2
     };
 
-    class __attribute__((packed, aligned(1))) UnintendedARP final
+    class __attribute__((packed, aligned(1))) ARP final
     {
-        struct
-        {
-            uint16_t     m_HardwareType;
-            uint16_t     m_ProtocolType;
-            uint8_t      m_HardwareLength;
-            uint8_t      m_ProtocolLength;
-            ARPOperation m_Operation;
-        } Header;
-
-        std::vector<uint8_t> m_Sender;
-        std::vector<uint8_t> m_Target;
+        be16_t  m_HardwareType   = ARPType<MAC>::Value;
+        be16_t  m_ProtocolType   = ARPType<IPImpl<4>>::Value;
+        be8_t   m_HardwareLength = sizeof(MAC);
+        be8_t   m_ProtocolLength = sizeof(IPImpl<4>);
+        be16_t  m_Operation;
+        ARPPeer m_Sender;
+        ARPPeer m_Target;
 
     public:
-        // TODO : Implement ARP parser
-        UnintendedARP(void* ptr, size_t size);
-    };
-
-    template<typename THardware, typename TProtocol>
-    class __attribute__((packed, aligned(1))) IntendedARP final
-    {
-    public:
-        using Peer = ARPPeer<THardware, TProtocol>;
-
-    private:
-        be16_t                        m_HardwareType   = ARPType<THardware>::Value;
-        be16_t                        m_ProtocolType   = ARPType<TProtocol>::Value;
-        be8_t                         m_HardwareLength = sizeof(THardware);
-        be8_t                         m_ProtocolLength = sizeof(TProtocol);
-        be16_t                        m_Operation;
-        ARPPeer<THardware, TProtocol> m_Sender;
-        ARPPeer<THardware, TProtocol> m_Target;
-
-    public:
-        IntendedARP(const ARPOperation op, Peer sender, Peer target)
-            : m_Operation(op), m_Sender(sender), m_Target(target)
-        {
-        }
+        ARP(ARPOperation op, ARPPeer sender, ARPPeer target);
 
         [[nodiscard]]
-        ARPOperation __GetOperation() const
-        {
-            return static_cast<ARPOperation>(static_cast<uint16_t>(m_Operation));
-        }
+        ARPOperation __GetOperation() const;
 
         [[nodiscard]]
-        Peer __GetSender() const
-        {
-            return m_Sender;
-        }
+        ARPPeer __GetSender() const;
 
         [[nodiscard]]
-        Peer __GetTarget() const
-        {
-            return m_Target;
-        }
+        ARPPeer __GetTarget() const;
 
         __declspec(property(get=__GetOperation))
         ARPOperation Operation;
 
         __declspec(property(get=__GetSender))
-        Peer Sender;
+        ARPPeer Sender;
 
         __declspec(property(get=__GetTarget))
-        Peer Target;
+        ARPPeer Target;
     };
 }

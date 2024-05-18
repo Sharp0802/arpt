@@ -22,4 +22,22 @@
 
 namespace arpt
 {
+    ARP::ARP(const ARPOperation op, ARPPeer sender, ARPPeer target): m_Operation(op), m_Sender(sender), m_Target(target)
+    {
+    }
+
+    ARPOperation ARP::__GetOperation() const
+    {
+        return static_cast<ARPOperation>(static_cast<uint16_t>(m_Operation));
+    }
+
+    ARPPeer ARP::__GetSender() const
+    {
+        return m_Sender;
+    }
+
+    ARPPeer ARP::__GetTarget() const
+    {
+        return m_Target;
+    }
 }
