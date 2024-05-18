@@ -22,6 +22,7 @@
 #define MAC_H
 
 #include "module.h"
+#include "arp.h"
 
 namespace arpt
 {
@@ -44,11 +45,15 @@ namespace arpt
         std::string ToString() const;
     };
 
+#if ARPTYPE_DEFINED
+
     template<>
     struct ARPType<MAC>
     {
-        uint16_t Value = 0x0001;
+        constexpr static uint16_t Value = 0x0001;
     };
+
+#endif
 }
 
 #endif //MAC_H

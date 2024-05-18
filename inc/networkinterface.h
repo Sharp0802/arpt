@@ -21,14 +21,24 @@
 #ifndef NETWORKINTERFACE_H
 #define NETWORKINTERFACE_H
 
+#include "ip.h"
+#include "mac.h"
 #include "module.h"
+#include "os.h"
 
 namespace arpt
 {
     struct NetworkInterfaceQueryOptions
     {
         bool EnableIPv6;
+
+        constexpr bool operator==(const NetworkInterfaceQueryOptions&) const;
     };
+
+    constexpr bool NetworkInterfaceQueryOptions::operator==(const NetworkInterfaceQueryOptions& other) const
+    {
+        return EnableIPv6 == other.EnableIPv6;
+    }
 
     class NetworkInterfaceBase;
 

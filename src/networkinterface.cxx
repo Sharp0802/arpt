@@ -19,6 +19,13 @@
  */
 
 #include "module.h"
+#include "os.h"
+#include "networkinterface.h"
+
+#include <mutex>
+
+#include "networkinterface.posix.h"
+#include "networkinterface.windows.h"
 
 namespace arpt
 {

@@ -19,6 +19,7 @@
  */
 
 #include "module.h"
+#include "mac.h"
 
 namespace arpt
 {

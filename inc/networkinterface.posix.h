@@ -24,6 +24,8 @@
 #if __unix__
 
 #include "module.h"
+#include "os.h"
+#include "networkinterface.h"
 
 namespace arpt
 {

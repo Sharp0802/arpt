@@ -21,6 +21,7 @@
 #if __unix__
 
 #include "module.h"
+#include "networkinterface.posix.h"
 
 #define THROW_ERRNO(msg) throw std::system_error(errno, std::generic_category(), msg)
 
