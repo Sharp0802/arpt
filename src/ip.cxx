@@ -19,6 +19,7 @@
  */
 
 #include "module.h"
+#include "ip.h"
 
 namespace arpt
 {
@@ -84,9 +85,7 @@ namespace arpt
             m_Data[12], m_Data[13], m_Data[14], m_Data[15]);
     }
 
-    IP::IP(const uint8_t* data, uint8_t version)
-        : m_4({ 0, 0, 0, 0 }),
-          m_6({ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 })
+    IP::IP(const uint8_t* data, uint8_t version) : m_4({}), m_6({})
     {
         switch (version)
         {
@@ -102,6 +101,42 @@ namespace arpt
                 throw std::system_error(
                     std::make_error_code(std::errc::invalid_argument),
                     "Invalid internet protocol version");
+        }
+    }
+
+    IP::IP(const std::string& str) : m_4({}), m_6({})
+    {
+        if (str.contains(':'))
+        {
+            throw std::system_error(
+                std::make_error_code(std::errc::protocol_not_supported),
+                "IPv6 initialization from string is not supported yet.");
+        }
+        else
+        {
+            std::array<uint8_t, 4> ip{};
+            char del;
+
+            std::stringstream ss(str);
+            for (auto i = 0; i < 4; ++i)
+            {
+                if (i != 0)
+                {
+                    ss >> del;
+                    if (del != '.')
+                        throw std::format_error(std::format("Invalid delimiter '{}' for IPv4", del));
+                }
+
+                int32_t v;
+                ss >> v;
+                if (v < 0 || std::numeric_limits<uint8_t>::max() < v)
+                    throw std::format_error(std::format("IP segment value '{}' is out of range (0-255)", v));
+
+                ip[0] = v;
+            }
+
+            m_4 = IPImpl<4>(ip);
+            m_Version = 4;
         }
     }
 

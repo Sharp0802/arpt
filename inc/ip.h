@@ -22,6 +22,7 @@
 #define IP_H
 
 #include "module.h"
+#include "arp.h"
 
 namespace arpt
 {
@@ -48,11 +49,13 @@ namespace arpt
         std::string ToString() const;
     };
 
+#if ARPTYPE_DEFINED
     template<>
     struct ARPType<IPImpl<4>>
     {
-        uint16_t Value = 0x0800;
+        constexpr static uint16_t Value = 0x0800;
     };
+#endif
 
     template<>
     class __attribute__((packed, aligned(1))) IPImpl<6> final
@@ -74,11 +77,13 @@ namespace arpt
         std::string ToString() const;
     };
 
+#if ARPTYPE_DEFINED
     template<>
     struct ARPType<IPImpl<6>>
     {
         static_assert("IPv6 doesn't use ARP; see NDP (https://en.wikipedia.org/wiki/Neighbor_Discovery_Protocol).");
     };
+#endif
 
     class IP
     {
@@ -88,6 +93,8 @@ namespace arpt
 
     public:
         IP(const uint8_t* data, uint8_t version);
+
+        IP(const std::string& str);
 
         explicit IP(std::array<uint8_t, 16> data);
 
