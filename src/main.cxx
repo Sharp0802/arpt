@@ -19,10 +19,24 @@
  */
 
 #include "module.h"
+#include "arp.h"
+#include "log.h"
+#include "networkinterface.h"
+
+#include <thread>
+#include <chrono>
+
+using namespace std::chrono_literals;
 
 using Subcommand = int(std::vector<std::string>);
 
-int Help()
+
+
+static volatile bool s_Interrupted = false;
+
+
+
+void Help()
 {
     std::cout << "arpt (ARPT) " VERSION " " TIMESTAMP R"(
 Copyright (C) 2023 Free Software Foundation, Inc.
@@ -37,10 +51,9 @@ SUBCOMMAND
   help      Prints this message
 
 )";
-    return 0;
 }
 
-int ListDevs()
+void ListDevs()
 {
     std::stringstream ss;
     ss << "\n                                  NAME LINK                           IP/MASK GATEWAY         BROADCAST";
@@ -56,9 +69,41 @@ int ListDevs()
             dev->Broadcast.has_value() ? dev->Broadcast.value().ToString() : "");
     }
     arpt::outs() << ss.str() << arpt::endl;
+}
+
+int Block(const std::vector<std::string>& args)
+{
+    arpt::NetworkInterface dev;
+    for (
+        const auto devs = arpt::QueryNetworkInterfaceList({ true });
+        const auto& devI: devs->Get())
+    {
+        if (devI->Name == args[0])
+            dev = devI;
+    }
+    if (args.size() < 3 && !dev->Broadcast)
+    {
+        arpt::errs() << "a network interface '" << dev->Name << "' has no broadcast address";
+        return -1;
+    }
+
+    auto target = args.size() < 3 ? dev->Broadcast.value() : arpt::IP(args[2]);
+    arpt::ARPPacket packet(
+        dev,
+        arpt::ARPOperation::ARP_Reply,
+        { dev->Link, arpt::IP(args[1]).IPv4 },
+        { arpt::MAC::Broadcast, target.IPv4 });
+
+    while (!s_Interrupted)
+    {
+        packet.Send();
+        std::this_thread::sleep_for(0.1s);
+    }
 
     return 0;
 }
+
+
 
 int main(int argc, char* argv[])
 {
@@ -88,6 +133,11 @@ int main(int argc, char* argv[])
     }
 #endif
 
+    signal(SIGINT, [](int)
+    {
+        s_Interrupted = true;
+    });
+
     static std::map<std::string, std::function<Subcommand>> s_Handler = {
         {
             "help", [](auto)
@@ -102,7 +152,8 @@ int main(int argc, char* argv[])
                 ListDevs();
                 return 0;
             }
-        }
+        },
+        { "block", Block }
     };
 
     if (argc < 2)
