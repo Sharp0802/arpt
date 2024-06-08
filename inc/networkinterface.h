@@ -31,13 +31,14 @@ namespace arpt
     struct NetworkInterfaceQueryOptions
     {
         bool EnableIPv6;
+        bool NoCache;
 
         constexpr bool operator==(const NetworkInterfaceQueryOptions&) const;
     };
 
     constexpr bool NetworkInterfaceQueryOptions::operator==(const NetworkInterfaceQueryOptions& other) const
     {
-        return EnableIPv6 == other.EnableIPv6;
+        return EnableIPv6 == other.EnableIPv6 && NoCache == other.NoCache;
     }
 
     class NetworkInterfaceBase;
