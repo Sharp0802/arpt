@@ -20,8 +20,45 @@
 
 #pragma once
 
+#include <utility>
+
+template <typename, std::size_t>
+concept IndexedAny = true;
+
 namespace arpt
 {
+    // TODO : Remove these legacy pack-indexing stuffs implemented before pack-indexing (C++26) standardized
+    // NOTE : Android NDK requries these code because its poor C++26 support
+    template<size_t I, typename, typename... T>
+    struct TypePackIndex
+    {
+        using Type = TypePackIndex<I - 1, T...>::Type;
+    };
+
+    template<typename T0, typename... T>
+    struct TypePackIndex<0, T0, T...>
+    {
+        using Type = T0;
+    };
+
+    template <std::size_t I, typename T0, typename... T>
+    struct ValuePackIndex
+    {
+        static typename TypePackIndex<I, T0, T...>::Type&& Get(T0&&, T&&... args)
+        {
+            return ValuePackIndex<I - 1, T...>::Get(std::forward<T>(args)...);
+        }
+    };
+
+    template <typename T0, typename... T>
+    struct ValuePackIndex<0, T0, T...>
+    {
+        static T0&& Get(T0&& arg0, T&&...)
+        {
+            return arg0;
+        }
+    };
+
     template<typename... T>
     class Packet;
 
@@ -52,7 +89,7 @@ namespace arpt
         auto& Get()
         {
             auto* p = &m_Buffer[Sum<I, sizeof(T)...>()];
-            return *reinterpret_cast<T...[I]*>(p);
+            return *reinterpret_cast<typename TypePackIndex<I, T...>::Type*>(p);
         }
 
         // NOLINTNEXTLINE(*-explicit-constructor)
@@ -94,7 +131,7 @@ namespace arpt
     {
         static void Init(Pack<T...>& p, T&&... args)
         {
-            p.template Get<I>() = args...[I];
+            p.template Get<I>() = ValuePackIndex<I, T...>::Get(std::forward<T>(args)...);
             __PackInit<I - 1, T...>::Init(p, std::forward<T>(args)...);
         }
     };
@@ -104,7 +141,7 @@ namespace arpt
     {
         static void Init(Pack<T...>& p, T&&... args)
         {
-            p.template Get<0>() = args...[0];
+            p.template Get<0>() = ValuePackIndex<0, T...>::Get(std::forward<T>(args)...);
         }
     };
 
