@@ -92,7 +92,8 @@ int Block(const std::vector<std::string>& args)
         dev,
         arpt::ARPOperation::ARP_Reply,
         { dev->Link, arpt::IP(args[1]).IPv4 },
-        { arpt::MAC::Broadcast, target.IPv4 });
+        { arpt::MAC{}, target.IPv4 }
+    );
 
     while (!s_Interrupted)
     {
