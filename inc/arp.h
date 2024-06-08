@@ -20,7 +20,7 @@
 
 #pragma once
 
-#include "endians.h"
+#include "module.h"
 
 namespace arpt
 {
@@ -34,6 +34,11 @@ namespace arpt
 #include "mac.h"
 
 #undef ARPTYPE_DEFINED
+
+#include "endians.h"
+#include "eth.h"
+#include "packet.h"
+#include "networkinterface.h"
 
 namespace arpt
 {
@@ -49,7 +54,7 @@ namespace arpt
         ARP_Reply   = 2
     };
 
-    class __attribute__((packed, aligned(1))) ARP final
+    class __packed ARP final
     {
         be16_t  m_HardwareType   = ARPType<MAC>::Value;
         be16_t  m_ProtocolType   = ARPType<IPImpl<4>>::Value;
@@ -79,5 +84,16 @@ namespace arpt
 
         __declspec(property(get=__GetTarget))
         ARPPeer Target;
+    };
+
+    class ARPPacket final
+    {
+        NetworkInterface m_Interface;
+        Packet<Ethernet, ARP> m_Packet;
+
+    public:
+        ARPPacket(const NetworkInterface& dev, ARPOperation op, ARPPeer sender, ARPPeer target);
+
+        int Send();
     };
 }
