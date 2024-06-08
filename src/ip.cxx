@@ -23,6 +23,10 @@
 
 namespace arpt
 {
+    IPImpl<4>::IPImpl() : m_Data()
+    {
+    }
+
     IPImpl<4>::IPImpl(const uint8_t* data)
         : m_Data{
             data[0], data[1],
@@ -48,6 +52,10 @@ namespace arpt
     std::string IPImpl<4>::ToString() const
     {
         return std::format("{}.{}.{}.{}", m_Data[0], m_Data[1], m_Data[2], m_Data[3]);
+    }
+
+    IPImpl<6>::IPImpl() : m_Data()
+    {
     }
 
     IPImpl<6>::IPImpl(const uint8_t* data)
@@ -85,7 +93,7 @@ namespace arpt
             m_Data[12], m_Data[13], m_Data[14], m_Data[15]);
     }
 
-    IP::IP(const uint8_t* data, uint8_t version) : m_4({}), m_6({})
+    IP::IP(const uint8_t* data, uint8_t version)
     {
         switch (version)
         {
@@ -104,7 +112,7 @@ namespace arpt
         }
     }
 
-    IP::IP(const std::string& str) : m_4({}), m_6({})
+    IP::IP(const std::string& str)
     {
         if (str.contains(':'))
         {
@@ -132,7 +140,7 @@ namespace arpt
                 if (v < 0 || std::numeric_limits<uint8_t>::max() < v)
                     throw std::format_error(std::format("IP segment value '{}' is out of range (0-255)", v));
 
-                ip[0] = v;
+                ip[i] = v;
             }
 
             m_4 = IPImpl<4>(ip);

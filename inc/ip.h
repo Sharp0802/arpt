@@ -22,7 +22,6 @@
 #define IP_H
 
 #include "module.h"
-#include "arp.h"
 
 namespace arpt
 {
@@ -35,6 +34,8 @@ namespace arpt
         std::array<uint8_t, 4> m_Data;
 
     public:
+        IPImpl();
+
         explicit IPImpl(const uint8_t* data);
 
         explicit IPImpl(std::array<uint8_t, 4> data);
@@ -63,6 +64,8 @@ namespace arpt
         std::array<uint8_t, 16> m_Data;
 
     public:
+        IPImpl();
+
         explicit IPImpl(const uint8_t* data);
 
         explicit IPImpl(std::array<uint8_t, 16> data);
