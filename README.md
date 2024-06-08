@@ -15,8 +15,8 @@ A cross-platform ARP toolkit written with modern C++.
 ## Compile Requisites
 
 - CMake 3.27 or later
-- Clang (17 or later; Cross-platform) or MSVC (latest; Windows only)
-- *Android*: NDK version 27 or later (`std::format`)
+- Clang (19 or later; Cross-platform)
+- *Android*: NDK version 27 or later
 
 ## How to build?
 
