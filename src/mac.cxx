@@ -23,6 +23,30 @@
 
 namespace arpt
 {
+    MAC::MAC() : m_Data()
+    {
+    }
+
+    MAC::MAC(const std::string& str) : m_Data()
+    {
+        char dummy = ':';
+        std::stringstream ss(str);
+        for (auto i = 0; i < 6; ++i)
+        {
+            if (i != 0)
+                ss >> dummy;
+            if (dummy != ':')
+                throw std::format_error("no character other than ':' cannot be delimiter of MAC address");
+
+            int32_t v;
+            ss >> std::hex >> v;
+            if (v > std::numeric_limits<uint8_t>::max())
+                throw std::format_error("any representation of a segment of MAC address cannot be greater than 255");
+
+            m_Data[i] = v;
+        }
+    }
+
     MAC::MAC(const uint8_t* data)
         : m_Data{
             data[0], data[1], data[2],
@@ -52,4 +76,6 @@ namespace arpt
             m_Data[0], m_Data[1], m_Data[2],
             m_Data[3], m_Data[4], m_Data[5]);
     }
+
+    const MAC MAC::Broadcast{ std::array<uint8_t, 6>{ 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF } };
 }

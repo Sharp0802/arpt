@@ -22,7 +22,6 @@
 #define MAC_H
 
 #include "module.h"
-#include "arp.h"
 
 namespace arpt
 {
@@ -31,6 +30,10 @@ namespace arpt
         std::array<uint8_t, 6> m_Data;
 
     public:
+        MAC();
+
+        explicit MAC(const std::string& str);
+
         explicit MAC(const uint8_t* data);
 
         explicit MAC(std::array<uint8_t, 6> data);
@@ -43,16 +46,16 @@ namespace arpt
 
         [[nodiscard]]
         std::string ToString() const;
+
+        static const MAC Broadcast;
     };
 
 #if ARPTYPE_DEFINED
-
     template<>
     struct ARPType<MAC>
     {
         constexpr static uint16_t Value = 0x0001;
     };
-
 #endif
 }
 
