@@ -26,7 +26,7 @@
 
 namespace arpt
 {
-    class __attribute__((packed, aligned(1))) MAC final
+    class __packed MAC final
     {
         std::array<uint8_t, 6> m_Data;
 

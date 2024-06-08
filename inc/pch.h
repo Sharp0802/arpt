@@ -25,6 +25,7 @@
 #include <atomic>
 #include <cstdint>
 #include <chrono>
+#include <csignal>
 #include <cstring>
 #include <format>
 #include <functional>
@@ -48,6 +49,7 @@
 #include <iphlpapi.h>
 #include <ipmib.h>
 #include <ws2tcpip.h>
+#include <conio.h>
 
 #elif __unix__
 
@@ -57,9 +59,13 @@
 #include <net/route.h>
 #include <sys/types.h>
 #include <ifaddrs.h>
+#include <termios.h>
+#include <sys/ioctl.h>
 
 #if __linux__
-#include <linux/if_packet.h> // sockaddr_ll
+#include <linux/if_ether.h>
+#include <linux/if_packet.h>
+#include <linux/if_arp.h>
 #include <linux/rtnetlink.h>
 #else
 #include <net/if_dl.h> // sockaddr_dl
@@ -68,5 +74,7 @@
 #endif
 
 #endif
+
+#define __packed [[gnu::packed, gnu::aligned(1)]]
 
 #endif //PCH_H

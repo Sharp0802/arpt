@@ -30,7 +30,7 @@ namespace arpt
     class IPImpl;
 
     template<>
-    class __attribute__((packed, aligned(1))) IPImpl<4> final
+    class __packed IPImpl<4> final
     {
         std::array<uint8_t, 4> m_Data;
 
@@ -58,7 +58,7 @@ namespace arpt
 #endif
 
     template<>
-    class __attribute__((packed, aligned(1))) IPImpl<6> final
+    class __packed IPImpl<6> final
     {
         std::array<uint8_t, 16> m_Data;
 
