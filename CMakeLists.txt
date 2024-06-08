@@ -2,8 +2,6 @@ cmake_minimum_required(VERSION 3.27)
 project(arpt)
 
 #
-# NPCAP_VERSION : A version of NPcap to use
-#                 Default: 1.13
 # USE_NETLINK   : ON if netlink should be used to resolving gateways; otherwise, OFF.
 #                 Default: ON; OFF(Android)
 #
@@ -12,9 +10,6 @@ project(arpt)
 # Versioning                                    #
 #################################################
 set(VERSION 0.0.1)
-if (NOT EXISTS NPCAP_VERSION)
-    set(NPCAP_VERSION 1.13)
-endif ()
 
 #################################################
 # Compile Option Configurations                 #
@@ -32,55 +27,11 @@ endif ()
 # Platform-Dependent Configurations             #
 #################################################
 if (WIN32)
-
-    #################################################
-    # NPCAP Configurations                          #
-    #################################################
-    file (
-        DOWNLOAD
-        "https://npcap.com/dist/npcap-sdk-${NPCAP_VERSION}.zip"
-        "${CMAKE_BINARY_DIR}/npcap.zip"
-    )
-    file (ARCHIVE_EXTRACT INPUT "${CMAKE_BINARY_DIR}/npcap.zip" DESTINATION "${CMAKE_BINARY_DIR}/npcap")
-
-    if (NOT EXISTS CMAKE_SYSTEM_PROCESSOR)
-        message(STATUS "CMAKE_SYSTEM_PROCESSOR is not set; defaults to '$ENV{PROCESSOR_ARCHITECTURE}'")
-        set(CMAKE_SYSTEM_PROCESSOR "$ENV{PROCESSOR_ARCHITECTURE}")
-    endif ()
-    if (CMAKE_SYSTEM_PROCESSOR STREQUAL "AMD64")
-        set(PCAP_DIRECTORY "${CMAKE_BINARY_DIR}/npcap/Lib/x64/")
-    elseif (CMAKE_SYSTEM_PROCESSOR STREQUAL "X86")
-        set(PCAP_DIRECTORY "${CMAKE_BINARY_DIR}/npcap/Lib/")
-    elseif (CMAKE_SYSTEM_PROCESSOR STREQUAL "ARM64")
-        set(PCAP_DIRECTORY "${CMAKE_BINARY_DIR}/npcap/Lib/ARM64/")
-    else ()
-        message(FATAL_ERROR "Architecture '${CMAKE_SYSTEM_PROCESSOR}' is not supported (AMD64; X86; ARM64).")
-    endif ()
-    message(STATUS "NPCAP ${NPCAP_VERSION} is configured")
-
     #################################################
     # Link Configurations                           #
     #################################################
-    set(ARPT_LINK_LIBRARIES ws2_32 iphlpapi wpcap)
-
+    set(ARPT_LINK_LIBRARIES ws2_32 iphlpapi)
 elseif (CMAKE_SYSTEM_NAME STREQUAL "Android")
-
-    #################################################
-    # Fetch pre-compiled libpcap for Android        #
-    #################################################
-    file (
-        DOWNLOAD
-        "https://raw.githubusercontent.com/seladb/libpcap-android/main/${CMAKE_ANDROID_ARCH_ABI}/${CMAKE_SYSTEM_VERSION}/libpcap.a"
-        "${CMAKE_BINARY_DIR}/libpcap.a"
-    )
-    set(PCAP_DIRECTORY "${CMAKE_BINARY_DIR}")
-    message(STATUS "PCAP (${CMAKE_ANDROID_ARCH_ABI}; API ${CMAKE_SYSTEM_VERSION}) configured")
-
-    #################################################
-    # Link Configurations                           #
-    #################################################
-    set(ARPT_LINK_LIBRARIES pcap)
-
     #################################################
     # Compile Option Configurations                 #
     #################################################
@@ -88,14 +39,7 @@ elseif (CMAKE_SYSTEM_NAME STREQUAL "Android")
         message(WARNING "Netlink is not supported on Android; An option 'USE_NETLINK' will be ignored.")
     endif ()
     set(ARPT_DEFINITIONS ${ARPT_DEFINITIONS} -DUSE_NETLINK=0)
-
 else ()
-
-    #################################################
-    # Link Configurations                           #
-    #################################################
-    set(ARPT_LINK_LIBRARIES pcap)
-
     #################################################
     # Compile Option Configurations                 #
     #################################################
@@ -139,5 +83,4 @@ target_include_directories(arpt PRIVATE
 target_compile_definitions(arpt PRIVATE ${ARPT_DEFINITIONS})
 target_precompile_headers(arpt PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/inc/pch.h")
 target_compile_options(arpt PRIVATE ${ARPT_COMPILE_OPTIONS})
-target_link_directories(arpt PRIVATE ${PCAP_DIRECTORY})
 target_link_libraries(arpt PRIVATE ${ARPT_LINK_LIBRARIES})

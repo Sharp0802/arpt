@@ -4,18 +4,17 @@ A cross-platform ARP toolkit written with modern C++.
 
 ## Supported Platforms
 
-|       Arch | OS      | Minimum Required Version           |
-|-----------:|:--------|:-----------------------------------|
-| x86/x86-64 | Windows | Vista (`GetAdaptersAddresses`)     |
-|      ARM64 | Windows |                                    |
-|         -- | Linux   | 2.2 (`netlink`)                    |
-|         -- | FreeBSD | 13.2 (`netlink`)                   |
-|         -- | Android | API level 24 (`getifaddrs`)        |
+| OS      | Minimum Required Version           |
+|:--------|:-----------------------------------|
+| Windows | Vista (`GetAdaptersAddresses`)     |
+| Linux   | 2.2 (`netlink`)                    |
+| FreeBSD | 13.2 (`netlink`)                   |
+| Android | API level 24 (`getifaddrs`)        |
 
 ## Compile Requisites
 
 - CMake 3.27 or later
-- Clang (19 or later; Cross-platform)
+- Clang 19 or later
 - *Android*: NDK version 27 or later
 
 ## How to build?
@@ -37,7 +36,5 @@ $ make -j
 
 ## CMake Variables
 
-- `NPCAP_VERSION:VERSION` : NPcap version to use (only Windows)
-  - Default is `1.13`
 - `USE_NETLINK:BOOL` : Whether Netlink should be used as default gateway resolver (only *nix)
   - Default is `OFF` on Android, otherwise `ON`
