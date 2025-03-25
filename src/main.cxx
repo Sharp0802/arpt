@@ -73,6 +73,11 @@ void ListDevs()
 
 int Block(const std::vector<std::string>& args)
 {
+    if (args.size() < 2) {
+        arpt::errs() << "insufficient arguments";
+        return -1;
+    }
+
     arpt::NetworkInterface dev;
     for (
         const auto devs = arpt::QueryNetworkInterfaceList({ true });
@@ -80,6 +85,11 @@ int Block(const std::vector<std::string>& args)
     {
         if (devI->Name == args[0])
             dev = devI;
+    }
+    if (!dev)
+    {
+        arpt::errs() << "There is no matching interface";
+        return -1;    
     }
     if (args.size() < 3 && !dev->Broadcast)
     {
@@ -92,13 +102,13 @@ int Block(const std::vector<std::string>& args)
         dev,
         arpt::ARPOperation::ARP_Reply,
         { dev->Link, arpt::IP(args[1]).IPv4 },
-        { arpt::MAC{}, target.IPv4 }
+        { arpt::MAC::Broadcast, target.IPv4 }
     );
 
     while (!s_Interrupted)
     {
         packet.Send();
-        std::this_thread::sleep_for(0.1s);
+        //std::this_thread::sleep_for(0.1s);
     }
 
     return 0;
